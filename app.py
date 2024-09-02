@@ -92,24 +92,31 @@ def home_page():
     st.title("لعبة برة السالفة")
     st.write("مرحبًا بك في لعبة برة السالفة! ابدأ بتحديد عدد اللاعبين.")
     st.session_state.num_players = st.number_input("أدخل عدد اللاعبين (3-12):", min_value=3, max_value=12, step=1)
-    st.button("ابدأ اللعبة", on_click=lambda: (initialize_players(), set_page('input_players')))
+    st.button("ابدأ اللعبة", on_click=lambda: (initialize_players(), set_page('input_players')), key='input_players_button')
+
 
 def input_players_page():
     st.title("أدخل أسماء اللاعبين")
     for i in range(st.session_state.num_players):
         st.session_state.players[i] = st.text_input(f"اسم اللاعب رقم {i+1}:", value=st.session_state.players[i])
-    st.button("التالي", on_click=set_page, args=['select_category'])
+    
+    # make sure names above are not empty
+    if not all(name.strip() for name in st.session_state.players):
+        st.error("من فضلك أدخل أسماء اللاعبين")
+        return
+    
+    st.button("التالي", on_click=set_page, args=['select_category'], key='select_category_button')
 
 def select_category_page():
     st.title("اختر القائمة")
     st.session_state.selected_category = st.selectbox("اختر قائمة الكلمات:", options=list(categories.keys()))
-    st.button("تأكيد القائمة", on_click=assign_roles_and_word)
+    st.button("تأكيد القائمة", on_click=assign_roles_and_word, key='assign_roles_and_word_button')
 
 def show_role_page():
     st.title("عرض الدور")
     current_player = st.session_state.players[st.session_state.current_player_index]
     st.write(f"أعط الشاشة إلى: **{current_player}**")
-    st.button("عرض الدور", on_click=set_page, args=['display_role'])
+    st.button("عرض الدور", on_click=set_page, args=['display_role'], key='display_role_button')
 
 def display_role_page():
     current_player = st.session_state.players[st.session_state.current_player_index]
@@ -122,14 +129,14 @@ def display_role_page():
     else:
         st.write("مهمتك أن توضح للمجموعة أنك تعرف الموضوع بالإجابة بشكل عام.")
     if st.session_state.current_player_index < len(st.session_state.players) - 1:
-        st.button("التالي", on_click=lambda: (st.session_state.update({'current_player_index': st.session_state.current_player_index + 1}), set_page('show_role')))
+        st.button("التالي", on_click=lambda: (st.session_state.update({'current_player_index': st.session_state.current_player_index + 1}), set_page('show_role')), key='show_role_button')
     else:
-        st.button("التالي", on_click=set_page, args=['question_or_vote'])
+        st.button("التالي", on_click=set_page, args=['question_or_vote'], key='question_or_vote_button')
 
 def question_or_vote_page():
     st.title("ماذا تريد أن تفعل الآن؟ يجب على اللاعبين الآن أن يطرحوا أسئلة اولا و من ثم التصويت او اختيار جولة اسئلة جديدة.")
-    st.button("بدء جولة أسئلة جديدة", on_click=lambda: (st.session_state.update({'question_pairs': generate_question_pairs(st.session_state.players), 'current_pair_index': 0}), set_page('question_time')))
-    st.button("البدء في التصويت", on_click=set_page, args=['voting'])
+    st.button("بدء جولة أسئلة جديدة", on_click=lambda: (st.session_state.update({'question_pairs': generate_question_pairs(st.session_state.players), 'current_pair_index': 0}), set_page('question_time')), key='question_time_button')
+    st.button("البدء في التصويت", on_click=set_page, args=['voting'], key='voting_button')
 
 def question_time_page():
     st.title("وقت الأسئلة")
@@ -143,10 +150,11 @@ def question_time_page():
             on_click=lambda: (
                 st.session_state.update({'current_pair_index': st.session_state.current_pair_index + 1}), 
                 set_page('question_time') if st.session_state.current_pair_index < len(st.session_state.question_pairs) else set_page('question_or_vote')
-            )
+            ), 
+            key='question_or_vote_button'
         )
     else:
-        st.button("الانتقال إلى التصويت", on_click=set_page, args=['voting'])
+        st.button("الانتقال إلى التصويت", on_click=set_page, args=['voting'], key='voting_button')
 
 
 def voting_page():
@@ -156,7 +164,7 @@ def voting_page():
 
     for player in st.session_state.players:
         if player != current_player:
-            st.button(f"تصويت ضد {player}", on_click=lambda p=player: (st.session_state.votes.update({current_player: p}), st.session_state.update({'vote_index': st.session_state.vote_index + 1}) if st.session_state.vote_index < len(st.session_state.players) - 1 else set_page('voting_results')))
+            st.button(f"تصويت ضد {player}", on_click=lambda p=player: (st.session_state.votes.update({current_player: p}), st.session_state.update({'vote_index': st.session_state.vote_index + 1}) if st.session_state.vote_index < len(st.session_state.players) - 1 else set_page('voting_results')), key=player)
 
 def voting_results_page():
     st.title("نتائج التصويت")
@@ -182,7 +190,7 @@ def voting_results_page():
     
     st.write(f"الأن **{bara_al_salfa}** سيقوم بتخمين الكلمة السرية وامكانية الحصول على 5 نقاط.")
     
-    st.button("التالي", on_click=set_page, args=['bara_guess'])
+    st.button("التالي", on_click=set_page, args=['bara_guess'], key='bara_guess_button')
 
 def bara_guess_page():
     st.title("تخمين الكلمة السرية")
@@ -190,7 +198,7 @@ def bara_guess_page():
     generate_guess_options()
     
     for word in st.session_state.guess_word_options:
-        st.button(word, on_click=lambda w=word: handle_bara_guess(w))
+        st.button(word, on_click=lambda w=word: handle_bara_guess(w), key=word)
 
 def total_scores_page():
     st.title("الكلمة السرية و النقاط الكلية")
@@ -216,8 +224,8 @@ def total_scores_page():
             st.write(f"- {player}: {score} نقطة")
     
     # Provide options to start a new round or quit the game
-    st.button("لعب جولة أخرى واختيار نفس القائمة او قائمة جديدة", on_click=lambda: (reset_for_new_round(), set_page('select_category')))
-    st.button("الخروج", on_click=lambda: st.stop())
+    st.button("لعب جولة أخرى واختيار نفس القائمة او قائمة جديدة", on_click=lambda: (reset_for_new_round(), set_page('select_category')), key='new_round_button')
+    st.button("الخروج", on_click=lambda: st.stop(), key='quit_button')
 
 
 # Page routing with callback functions
