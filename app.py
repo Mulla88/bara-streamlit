@@ -72,8 +72,8 @@ def generate_guess_options():
 # Function to handle the guessing of the secret word by "برة السالفة"
 def handle_bara_guess(guess):
     if guess == st.session_state.game_word:
-        st.session_state.round_scores[st.session_state.bara_al_salfa] += 5
-        st.session_state.guess_result = "صحيح! لقد خمنت الكلمة السرية بشكل صحيح وحصلت على 5 نقاط إضافية."
+        st.session_state.round_scores[st.session_state.bara_al_salfa] += 10
+        st.session_state.guess_result = "صحيح! لقد خمنت الكلمة السرية بشكل صحيح وحصلت على 10 نقاط."
     else:
         st.session_state.guess_result = "خطأ! لم تخمن الكلمة السرية بشكل صحيح."
     set_page('total_scores')
@@ -89,8 +89,8 @@ def initialize_players():
 
 # Page layouts
 def home_page():
-    st.title("لعبة برة السالفة")
-    st.write("مرحبًا بك في لعبة برة السالفة! ابدأ بتحديد عدد اللاعبين.")
+    st.title("لعبة برا السالفة")
+    st.write("مرحبًا بك في لعبة برا السالفة! ابدأ بتحديد عدد اللاعبين.")
     st.session_state.num_players = st.number_input("أدخل عدد اللاعبين (3-12):", min_value=3, max_value=12, step=1)
     st.button("ابدأ اللعبة", on_click=lambda: (initialize_players(), set_page('input_players')), key='input_players_button')
 
@@ -115,7 +115,7 @@ def select_category_page():
 def show_role_page():
     st.title("عرض الدور")
     current_player = st.session_state.players[st.session_state.current_player_index]
-    st.write(f"أعط الشاشة إلى: **{current_player}**")
+    st.write(f"أعط الشاشة إلى: {current_player}")
     st.button("عرض الدور", on_click=set_page, args=['display_role'], key='display_role_button')
 
 def display_role_page():
@@ -123,7 +123,7 @@ def display_role_page():
     role = st.session_state.roles[current_player]
     st.title("دورك")
     st.write(f"القائمة: **{st.session_state.selected_category}**")
-    st.write(f"مرحبا **{current_player}**، دورك هو: **{role}**")
+    st.write(f"مرحبا {current_player}، دورك هو: **{role}**")
     if role == 'داخل السالفة':
         st.write(f"الكلمة السرية هي: **{st.session_state.game_word}**")
     else:
@@ -136,7 +136,9 @@ def display_role_page():
 def question_or_vote_page():
     st.title("ماذا تريد أن تفعل الآن؟ يجب على اللاعبين الآن أن يطرحوا أسئلة اولا و من ثم التصويت او اختيار جولة اسئلة جديدة.")
     st.button("بدء جولة أسئلة جديدة", on_click=lambda: (st.session_state.update({'question_pairs': generate_question_pairs(st.session_state.players), 'current_pair_index': 0}), set_page('question_time')), key='question_time_button')
-    st.button("البدء في التصويت", on_click=set_page, args=['voting'], key='voting_button')
+    st.button("خلصنا اسئلة، البدء بالتصويت", on_click=set_page, args=['voting'], key='voting_button')
+    st.title("اذا لم تعجبك الكلمة، اضغط الزر الاسفل لاعادة الادوار واختيار كلمة جديدة من القائمات")
+    st.button("اختيار كلمة جديدة و اعادة الادوار", on_click=lambda: (reset_for_new_round(), set_page('select_category')), key='new_round_button')
 
 def question_time_page():
     st.title("وقت الأسئلة")
@@ -176,7 +178,7 @@ def voting_results_page():
     ]
     st.table(results_table)
 
-    st.write(f"برة السالفة هو **{bara_al_salfa}**")
+    st.write(f"برا السالفة هو **{bara_al_salfa}**")
     
     # Initialize round_scores for all players
     for player in st.session_state.players:
@@ -188,7 +190,7 @@ def voting_results_page():
             st.session_state.round_scores[player] += 5
             st.write(f"{player} حصل على 5 نقاط لتصويته الصحيح")
     
-    st.write(f"الأن **{bara_al_salfa}** سيقوم بتخمين الكلمة السرية وامكانية الحصول على 5 نقاط.")
+    st.write(f"الأن **{bara_al_salfa}** سيقوم بتخمين الكلمة السرية وامكانية الحصول على 10 نقاط.")
     
     st.button("التالي", on_click=set_page, args=['bara_guess'], key='bara_guess_button')
 
