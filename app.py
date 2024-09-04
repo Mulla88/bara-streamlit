@@ -89,7 +89,7 @@ def initialize_players():
 
 # Page layouts
 def home_page():
-    st.title("لعبة برا السالفة")
+    st.title("لعبة براالسالفة")
     st.write("مرحبًا بك في لعبة برا السالفة! ابدأ بتحديد عدد اللاعبين.")
     st.session_state.num_players = st.number_input("أدخل عدد اللاعبين (3-12):", min_value=3, max_value=12, step=1)
     st.button("ابدأ اللعبة", on_click=lambda: (initialize_players(), set_page('input_players')), key='input_players_button')
@@ -102,7 +102,7 @@ def input_players_page():
     
     # make sure names above are not empty
     if not all(name.strip() for name in st.session_state.players):
-        st.error("من فضلك أدخل أسماء اللاعبين")
+        st.warning("من فضلك أدخل أسماء اللاعبين")
         return
     
     st.button("التالي", on_click=set_page, args=['select_category'], key='select_category_button')
@@ -172,11 +172,9 @@ def voting_results_page():
     st.title("نتائج التصويت")
     bara_al_salfa = st.session_state.bara_al_salfa
 
-    st.write("نتائج التصويت:")
-    results_table = [
-        {"اللاعب": player, "صوت ضد": voted_for} for player, voted_for in st.session_state.votes.items()
-    ]
-    st.table(results_table)
+    # Display the results but not in table format 
+    for player, voted_for in st.session_state.votes.items():
+        st.write(f"- {player} صوت ضد {voted_for}")
 
     st.write(f"برا السالفة هو **{bara_al_salfa}**")
     
@@ -242,7 +240,7 @@ def page_router():
         show_role_page()
     elif st.session_state.page == 'display_role':
         display_role_page()
-    elif st.session_state.page == 'question_or_vote':
+    elif st.session_state.page == 'question_or_vote': 
         question_or_vote_page()
     elif st.session_state.page == 'question_time':
         question_time_page()
